@@ -16,6 +16,7 @@ import java.io.BufferedWriter;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.*;
+import java.util.Random;
 import java.util.StringTokenizer;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -43,23 +44,21 @@ public class StreamingServer extends Activity implements View.OnClickListener {
     private DatagramPacket senddp; //UDP packet containing the video frames
     private DatagramSocket RTPsocket; //socket to be used to send and receive UDP packets
 
-    private int imagenb = 0; //image nb of the image currently transmitted
 
-    private VideoStream video; //VideoStream object used to access video frames
+
+
     private static int MJPEG_TYPE = 26; //RTP payload type for MJPEG video
     private static int FRAME_PERIOD = 100; //Frame period of the video to stream, in ms
     private static int VIDEO_LENGTH = 500; //length of the video in frames
     private static int RTSP_SERVER_PORT = 4444;
 
-    private Timer timer; //timer used to send the images at the video frame rate
-    private byte[] buf = new byte[15000]; //buffer used to store the images to send to the client
 
 
     private Socket RTSPsocket; //socket used to send/receive RTSP messages
     //input and output stream filters
 
     private static String VideoFileName; //video file requested from the client
-    private static int RTSP_ID = 123456; //ID of the RTSP session
+
 
 
     private final static String CRLF = "\r\n";
@@ -104,7 +103,7 @@ public class StreamingServer extends Activity implements View.OnClickListener {
 
         try {
             //Initiate TCP connection with the client for the RTSP session
-            ServerSocket listenSocket = new ServerSocket(RTSP_SERVER_PORT);
+            ServerSocket listenSocket = new ServerSocket(4444);
 
             while (true) {
                 try {
@@ -155,6 +154,14 @@ public class StreamingServer extends Activity implements View.OnClickListener {
         private final static int TEARDOWN = 6;
 
         private int state; //RTSP Server state == INIT or READY or PLAY
+
+        private VideoStream video; //VideoStream object used to access video frames
+
+        private Timer timer; //timer used to send the images at the video frame rate
+        private byte[] buf = new byte[15000]; //buffer used to store the images to send to the client
+
+        Random rand = new Random();
+        private int RTSP_ID = rand.nextInt(10000);
 
         //Constructor
         ClientWorker(Socket client) {
@@ -212,7 +219,7 @@ public class StreamingServer extends Activity implements View.OnClickListener {
                             //start timer
                             //verzend niet goed na pauze, cuz of dit i think
                             timer = new Timer();
-                            timer.schedule(new SendFrame(ip), 0, FRAME_PERIOD);
+                            timer.schedule(new SendFrame(ip, video, timer, buf), 0, FRAME_PERIOD);
 
 
                             //update state
@@ -323,9 +330,16 @@ public class StreamingServer extends Activity implements View.OnClickListener {
     private class SendFrame extends TimerTask {
 
         private InetAddress ClientIPAddr; //Client IP address
+        private VideoStream video;
+        private Timer timer;
+        private byte[] buf;
+        private int imagenb = 0;
 
-        public SendFrame(InetAddress ip) {
+        public SendFrame(InetAddress ip, VideoStream video, Timer timer, byte[] buf) {
             this.ClientIPAddr = ip;
+            this.video = video;
+            this.timer = timer;
+            this.buf = buf;
         }
 
         public void run() {
