@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+
+    <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_centerInParent="true"
+            >
+
+        <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Run as server"
+                android:id="@+id/serverBtn"
+                android:layout_marginBottom="@dimen/activity_horizontal_margin"/>
+
+        <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Run as client"
+                android:id="@+id/clientBtn"
+                android:layout_marginTop="@dimen/activity_horizontal_margin"/>
+    </LinearLayout>
+
+</RelativeLayout>
