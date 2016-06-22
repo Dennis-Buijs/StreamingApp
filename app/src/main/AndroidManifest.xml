@@ -42,6 +42,22 @@
                 android:label="Stream"
                 android:screenOrientation="portrait"/>
 
+        <activity
+                android:name=".StreamingRegister"
+                android:label="Stream"
+                android:screenOrientation="portrait"/>
+
+        <activity android:name=".MovieList"
+                  android:label="Stream"
+                  android:screenOrientation="portrait"
+                  android:windowSoftInputMode="adjustPan">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+
+
     </application>
 
 </manifest>

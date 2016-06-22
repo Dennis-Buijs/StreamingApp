@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import java.io.*;
 import java.lang.ref.WeakReference;
@@ -27,8 +28,6 @@ public class StreamingClient extends Activity implements View.OnClickListener {
     private final static int PLAYING = 2;
     private final static int REFRESH = 1;
 
-    private static final int RTSP_SERVER_PORT = 4444;
-
     private int rtspServerPort;
     private String serverIp;
     static int state;
@@ -38,7 +37,7 @@ public class StreamingClient extends Activity implements View.OnClickListener {
     private int RTSPSeqNb = 0;
     private int RTSPid = 0;
 
-    static int RTP_RCV_PORT = 4444; //port where the client will receive the RTP packets
+    static int RTP_RCV_PORT; //port where the client will receive the RTP packets
     private static final int FRAME_PERIOD = 20;
     private final static String CRLF = "\r\n";
     private DatagramPacket receivedDataPacket;
@@ -58,13 +57,22 @@ public class StreamingClient extends Activity implements View.OnClickListener {
 
     private ImageRefresher imageRefresher = new ImageRefresher(this);
 
-    private static final String VideoFileName = "movie.Mjpeg";
+    private String VideoFileName = "movie.Mjpeg";
+
+
+    private String fileNameFromList;
+    private String clientIpFromList;
+    private int portNbFromList = -1;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_streaming_cient);
+
+        fileNameFromList = getIntent().getStringExtra("fileName");
+        clientIpFromList = getIntent().getStringExtra("serverIp");
+        portNbFromList = Integer.parseInt(getIntent().getStringExtra("portNb"));
 
         connectBtnClient = (Button) findViewById(R.id.connectBtnClient);
         setupBtn = (Button) findViewById(R.id.setupBtn);
@@ -160,10 +168,13 @@ public class StreamingClient extends Activity implements View.OnClickListener {
     public void setupConnection() {
         Log.i("streaming app", "making connection");
 
-        try {
-            rtspServerPort = RTSP_SERVER_PORT;
-            serverIp = editTextServerIp.getText().toString();
 
+        try {
+            rtspServerPort = portNbFromList;
+            serverIp = clientIpFromList;
+            RTP_RCV_PORT = portNbFromList;
+
+            System.out.println(serverIp);
             // get server RTSP port and IP address from the command line
             InetAddress ServerIPAddr = InetAddress.getByName(serverIp);
 
@@ -180,23 +191,24 @@ public class StreamingClient extends Activity implements View.OnClickListener {
             // init RTSP state:
             state = INIT;
             Log.i("streaming app", "connection OK!");
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(getBaseContext(), "Connection made", Toast.LENGTH_SHORT).show();
+                }
+            });
+
         } catch (Exception e) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(getBaseContext(), "Something went wrong, check connection", Toast.LENGTH_SHORT).show();
+                }
+            });
             Log.i("Streaming app", e.toString());
         }
     }
 
-
-    public StreamingClient() {
-    }
-
-
-    //------------------------------------
-    //Handler for buttons
-    //------------------------------------
-
-    //.............
-    //TO COMPLETE
-    //.............
 
     //Handler for Setup button
     //-----------------------
@@ -231,8 +243,14 @@ public class StreamingClient extends Activity implements View.OnClickListener {
                 //change RTSP state and print new state
                 state = READY;
                 Log.i("Streaming app", "New RTSP state: READY");
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getBaseContext(), "Ready to play", Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
-        }//else if state != INIT then do nothing
+        }
     }
 
 
@@ -256,6 +274,15 @@ public class StreamingClient extends Activity implements View.OnClickListener {
                 //change RTSP state and print out new state
                 state = PLAYING;
                 Log.i("Streaming app", "New RTSP state: PLAYING");
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getBaseContext(), "Playing", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+
 
                 //start the timer
                 timer = new Timer();
@@ -285,6 +312,13 @@ public class StreamingClient extends Activity implements View.OnClickListener {
                 //change RTSP state and print out new state
                 state = READY;
                 Log.i("Streaming app", "New RTSP state: READY");
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getBaseContext(), "Pause", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
 
                 //stop the timer
                 timer.cancel();
@@ -374,7 +408,12 @@ public class StreamingClient extends Activity implements View.OnClickListener {
             //Use the RTSPBufferedWriter to write to the RTSP socket
 
             //write the request line:
-            rtspBufferedWriter.write(request_type + " " + VideoFileName + " RTSP/1.0" + CRLF);
+            if(fileNameFromList != null){
+                rtspBufferedWriter.write(request_type + " " + fileNameFromList + " RTSP/1.0" + CRLF);
+            }else {
+                rtspBufferedWriter.write(request_type + " " + VideoFileName + " RTSP/1.0" + CRLF);
+
+            }
 
             //write the CSeq line:
             rtspBufferedWriter.write("CSeq: " + RTSPSeqNb + CRLF);

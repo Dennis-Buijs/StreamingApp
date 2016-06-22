@@ -9,6 +9,7 @@ import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
@@ -50,7 +51,7 @@ public class StreamingServer extends Activity implements View.OnClickListener {
     private static int MJPEG_TYPE = 26; //RTP payload type for MJPEG video
     private static int FRAME_PERIOD = 100; //Frame period of the video to stream, in ms
     private static int VIDEO_LENGTH = 500; //length of the video in frames
-    private static int RTSP_SERVER_PORT = 4444;
+    private static int RTSP_SERVER_PORT = -1;
 
 
 
@@ -64,6 +65,7 @@ public class StreamingServer extends Activity implements View.OnClickListener {
     private final static String CRLF = "\r\n";
 
     private Button connectBtnServer;
+    private EditText portToUse;
 
 
     @Override
@@ -72,6 +74,7 @@ public class StreamingServer extends Activity implements View.OnClickListener {
         setContentView(R.layout.activity_streaming_server);
 
         connectBtnServer = (Button) findViewById(R.id.connectBtnServer);
+        portToUse = (EditText) findViewById(R.id.portAsServer); 
 
         connectBtnServer.setOnClickListener(this);
 
@@ -101,11 +104,25 @@ public class StreamingServer extends Activity implements View.OnClickListener {
     public void setupConnection() {
         Log.i(TAG, "connection setup");
 
+        RTSP_SERVER_PORT = Integer.parseInt(portToUse.getText().toString());
+        boolean bool = false;
+        
         try {
-            //Initiate TCP connection with the client for the RTSP session
-            ServerSocket listenSocket = new ServerSocket(4444);
+            ServerSocket listenSocket = null;
+            if(RTSP_SERVER_PORT != -1) {
+                //Initiate TCP connection with the client for the RTSP session
+                listenSocket = new ServerSocket(RTSP_SERVER_PORT);
+                bool = true;
+            }else{
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getBaseContext(), "Voer poort in", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
 
-            while (true) {
+            while (bool) {
                 try {
                     ClientWorker worker = new ClientWorker(listenSocket.accept());
                     worker.start();
@@ -161,7 +178,7 @@ public class StreamingServer extends Activity implements View.OnClickListener {
         private byte[] buf = new byte[15000]; //buffer used to store the images to send to the client
 
         Random rand = new Random();
-        private int RTSP_ID = rand.nextInt(10000);
+        private int RTSP_ID = rand.nextInt(10000) + 1;
 
         //Constructor
         ClientWorker(Socket client) {

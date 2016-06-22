@@ -18,6 +18,11 @@
             android:orientation="vertical"
             android:layout_centerInParent="true">
 
+        <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Port"
+                android:id="@+id/portAsServer"/>
 
         <Button
                 android:layout_width="wrap_content"
