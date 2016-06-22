@@ -7,9 +7,20 @@
     <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:id="@+id/justAName"
             android:text="Server"
             android:layout_centerHorizontal="true"
             android:textAppearance="@style/TextAppearance.AppCompat.Title"
+            android:layout_marginTop="@dimen/activity_horizontal_margin"/>
+
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:id="@+id/textViewForIp"
+            android:layout_below="@+id/justAName"
+            android:layout_centerHorizontal="true"
+            android:text=""
             android:layout_marginTop="@dimen/activity_horizontal_margin"/>
 
     <LinearLayout
@@ -31,12 +42,7 @@
                 android:id="@+id/connectBtnServer"
                 android:layout_marginBottom="@dimen/activity_horizontal_margin"/>
 
-        <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAlignment="center"
-                android:id="@+id/counter"
-                android:layout_marginTop="@dimen/activity_horizontal_margin"/>
+
 
     </LinearLayout>
 

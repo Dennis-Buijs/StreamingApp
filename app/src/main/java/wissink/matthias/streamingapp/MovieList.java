@@ -55,7 +55,7 @@ public class MovieList extends Activity implements AdapterView.OnItemClickListen
             Log.i("Json Parser", "Button clicked");
             if(editText.getText() != null){
                 movies.clear();
-                new HttpAsyncTask().execute("http://"+editText.getText()+"/JsonMovie.json");
+                new HttpAsyncTask().execute("http://"+editText.getText()+"/out/production/StreamingVideo/JsonMovie.json");
             }else{
                 Toast.makeText(getBaseContext(), "Voer een IP in", Toast.LENGTH_SHORT).show();
             }

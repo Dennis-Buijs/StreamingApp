@@ -1,6 +1,7 @@
 package wissink.matthias.streamingapp;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -35,10 +36,12 @@ public class StreamingRegister extends Activity implements View.OnClickListener 
     private TextView serverIpEt;
     private TextView portNbEt;
     private TextView fileNameEt;
+    private TextView yourPortNbEt;
 
     private String serverIp;
     private int portNb;
     private String fileName;
+    private int yourPortNb;
 
     private Socket rtspSocket;
     private BufferedReader in;
@@ -55,6 +58,8 @@ public class StreamingRegister extends Activity implements View.OnClickListener 
         serverIpEt = (TextView) findViewById(R.id.serverIp);
         portNbEt = (TextView) findViewById(R.id.portNb);
         fileNameEt = (TextView) findViewById(R.id.fileName);
+        yourPortNbEt = (TextView) findViewById(R.id.yourPortNb);
+
 
         registerToServerBtn.setOnClickListener(this);
     }
@@ -64,8 +69,12 @@ public class StreamingRegister extends Activity implements View.OnClickListener 
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.registerToServer:
-                RegisterFileTask registerFileTask = new RegisterFileTask();
-                registerFileTask.execute((Void[]) null);
+                if (!serverIpEt.getText().toString().equals("") && !portNbEt.getText().toString().equals("") && !fileNameEt.getText().toString().equals("") && !yourPortNbEt.getText().toString().equals("")) {
+                    RegisterFileTask registerFileTask = new RegisterFileTask();
+                    registerFileTask.execute((Void[]) null);
+                } else {
+                    Toast.makeText(getBaseContext(), "Enter valid values", Toast.LENGTH_LONG).show();
+                }
                 break;
         }
     }
@@ -84,8 +93,9 @@ public class StreamingRegister extends Activity implements View.OnClickListener 
 
         try {
             serverIp = serverIpEt.getText().toString();
-            portNb = Integer.parseInt(portNbEt.getText().toString());
             fileName = fileNameEt.getText().toString();
+            portNb = Integer.parseInt(portNbEt.getText().toString());
+            yourPortNb = Integer.parseInt(yourPortNbEt.getText().toString());
 
             InetAddress ServerIpAddress = InetAddress.getByName(serverIp);
 
@@ -99,20 +109,24 @@ public class StreamingRegister extends Activity implements View.OnClickListener 
 
             state = INIT;
 
+
+            //Send SENDING to server, so data will be saved to json on server.
             if (state == INIT) {
                 Log.i(TAG, "sending");
                 RTSPSeqNb++;
                 sendRequest("SENDING");
 
-                if(parse_server_response() == 200){
+                //200 just a random number
+                if (parse_server_response() == 200) {
+
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             registerToServerBtn.setClickable(false);
                             Toast.makeText(getBaseContext(), "Registered", Toast.LENGTH_LONG).show();
+                            toServerScreen();
                         }
                     });
-
                 }
             }
         } catch (Exception e) {
@@ -120,10 +134,15 @@ public class StreamingRegister extends Activity implements View.OnClickListener 
         }
     }
 
+    public void toServerScreen(){
+        Intent intent = new Intent(getApplicationContext(), StreamingServer.class);
+        intent.putExtra("portNb", String.valueOf(yourPortNb));
+        startActivity(intent);
+    }
 
     public void sendRequest(String request_type) {
         try {
-            out.write(request_type + " " + fileName + " " + portNb + " RTSP/1.0" + CRLF);
+            out.write(request_type + " " + fileName + " " + yourPortNb + " RTSP/1.0" + CRLF);
             //write the CSeq line:
             out.write("CSeq: " + RTSPSeqNb + CRLF);
             out.flush();

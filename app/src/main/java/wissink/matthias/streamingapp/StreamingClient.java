@@ -80,6 +80,10 @@ public class StreamingClient extends Activity implements View.OnClickListener {
         pauseBtn = (Button) findViewById(R.id.pauseBtn);
         tearDownBtn = (Button) findViewById(R.id.tearDownBtn);
 
+        setupBtn.setClickable(false);
+        playBtn.setClickable(false);
+        pauseBtn.setClickable(false);
+
         connectBtnClient.setOnClickListener(this);
         setupBtn.setOnClickListener(this);
         playBtn.setOnClickListener(this);
@@ -194,6 +198,8 @@ public class StreamingClient extends Activity implements View.OnClickListener {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    connectBtnClient.setClickable(false);
+                    setupBtn.setClickable(true);
                     Toast.makeText(getBaseContext(), "Connection made", Toast.LENGTH_SHORT).show();
                 }
             });
@@ -202,7 +208,7 @@ public class StreamingClient extends Activity implements View.OnClickListener {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    Toast.makeText(getBaseContext(), "Something went wrong, check connection", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getBaseContext(), "Something went wrong, try again", Toast.LENGTH_SHORT).show();
                 }
             });
             Log.i("Streaming app", e.toString());
@@ -246,6 +252,8 @@ public class StreamingClient extends Activity implements View.OnClickListener {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        setupBtn.setClickable(false);
+                        playBtn.setClickable(true);
                         Toast.makeText(getBaseContext(), "Ready to play", Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -278,6 +286,7 @@ public class StreamingClient extends Activity implements View.OnClickListener {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        pauseBtn.setClickable(true);
                         Toast.makeText(getBaseContext(), "Playing", Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -408,7 +417,7 @@ public class StreamingClient extends Activity implements View.OnClickListener {
             //Use the RTSPBufferedWriter to write to the RTSP socket
 
             //write the request line:
-            if(fileNameFromList != null){
+            if(!fileNameFromList.equals("")){
                 rtspBufferedWriter.write(request_type + " " + fileNameFromList + " RTSP/1.0" + CRLF);
             }else {
                 rtspBufferedWriter.write(request_type + " " + VideoFileName + " RTSP/1.0" + CRLF);

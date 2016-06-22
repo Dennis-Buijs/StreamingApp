@@ -79,13 +79,17 @@ public class StreamingServer extends Activity implements View.OnClickListener {
         connectBtnServer.setOnClickListener(this);
 
         verifyStoragePermissions(this);
+
+        if(getIntent().getStringExtra("portNb") != null){
+            portToUse.setText(getIntent().getStringExtra("portNb"));
+        }
     }
 
-    private class ConnectButtonTask extends AsyncTask<Void, Void, Void> {
+    private class ConnectButtonTask extends AsyncTask<String, Void, Void> {
 
         @Override
-        protected Void doInBackground(Void... params) {
-            setupConnection();
+        protected Void doInBackground(String... params) {
+            setupConnection(Integer.parseInt(params[0]));
             return null;
         }
     }
@@ -94,17 +98,22 @@ public class StreamingServer extends Activity implements View.OnClickListener {
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.connectBtnServer:
-                ConnectButtonTask connectButtonTask = new ConnectButtonTask();
-                connectButtonTask.execute((Void[]) null);
-                Toast.makeText(this.getBaseContext(), "Ready to connect", Toast.LENGTH_LONG).show();
+                if(!portToUse.getText().toString().equals("")){
+                    ConnectButtonTask connectButtonTask = new ConnectButtonTask();
+                    connectButtonTask.execute(portToUse.getText().toString());
+                    Toast.makeText(this.getBaseContext(), "Ready to connect", Toast.LENGTH_LONG).show();
+                }else {
+                    Toast.makeText(this.getBaseContext(), "Enter port number", Toast.LENGTH_LONG).show();
+                }
+
         }
     }
 
 
-    public void setupConnection() {
+    public void setupConnection(int port) {
         Log.i(TAG, "connection setup");
 
-        RTSP_SERVER_PORT = Integer.parseInt(portToUse.getText().toString());
+        RTSP_SERVER_PORT = port;
         boolean bool = false;
         
         try {
@@ -152,7 +161,7 @@ public class StreamingServer extends Activity implements View.OnClickListener {
         }
     }
 
-    private class ClientWorker extends Thread {
+    public class ClientWorker extends Thread {
         private Socket client;
         private BufferedReader in;
         private BufferedWriter out;

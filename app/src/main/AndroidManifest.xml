@@ -27,8 +27,8 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
             <intent-filter>
-                <action android:name="android.intent.action.SEND" />
-                <category android:name="android.intent.category.DEFAULT" />
+                <action android:name="android.intent.action.SEND"/>
+                <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
 
@@ -45,12 +45,18 @@
         <activity
                 android:name=".StreamingRegister"
                 android:label="Stream"
-                android:screenOrientation="portrait"/>
+                android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
 
-        <activity android:name=".MovieList"
-                  android:label="Stream"
-                  android:screenOrientation="portrait"
-                  android:windowSoftInputMode="adjustPan">
+        <activity
+                android:name=".MovieList"
+                android:label="Stream"
+                android:screenOrientation="portrait"
+                android:windowSoftInputMode="adjustPan">
             <intent-filter>
                 <action android:name="android.intent.action.SEND"/>
                 <category android:name="android.intent.category.DEFAULT"/>
